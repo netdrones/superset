@@ -1397,6 +1397,8 @@ TALISMAN_DEV_CONFIG = {
             "'self'",
             "https://api.mapbox.com",
             "https://events.mapbox.com",
+            "http://localhost:8888",
+            "ws://localhost:8888",
         ],
         "object-src": "'none'",
         "style-src": ["'self'", "'unsafe-inline'"],

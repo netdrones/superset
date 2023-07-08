@@ -46,6 +46,7 @@ import {
 import { RootState } from 'src/dashboard/types';
 import DatabaseModal from 'src/features/databases/DatabaseModal';
 import { uploadUserPerms } from 'src/views/CRUD/utils';
+import ChatModal from 'src/components/ChatModal/ChatModal';
 import LanguagePicker from './LanguagePicker';
 import {
   ExtensionConfigs,
@@ -263,6 +264,8 @@ const RightMenu = ({
     });
   };
 
+  const [showChatModal, setShowChatModal] = useState(false);
+
   useEffect(() => {
     if (canUploadData) {
       checkAllowUploads();
@@ -363,6 +366,24 @@ const RightMenu = ({
           <span css={tagStyles}>{environmentTag.text}</span>
         </Label>
       )}
+      <Label style={{ color: '#ffffff', backgroundColor: '#C2185B' }}>
+        <Tooltip
+          placement="top"
+          title="Ask AI to help you to create a dashboard"
+        >
+          <button
+            type="button"
+            style={{
+              border: 0,
+              fontWeight: 'bold',
+              background: 'transparent',
+            }}
+            onClick={() => setShowChatModal(true)}
+          >
+            Ask AI
+          </button>
+        </Tooltip>
+      </Label>
       <Menu
         selectable={false}
         mode="horizontal"
@@ -561,6 +582,20 @@ const RightMenu = ({
           <i className="fa fa-fw fa-sign-in" />
           {t('Login')}
         </StyledAnchor>
+      )}
+      {showChatModal && (
+        <>
+          {/* <Helmet>
+            <meta
+              httpEquiv="Content-Security-Policy"
+              content="connect-src 'self'"
+            />
+          </Helmet> */}
+          <ChatModal
+            show={showChatModal}
+            onHide={() => setShowChatModal(false)}
+          />
+        </>
       )}
     </StyledDiv>
   );
