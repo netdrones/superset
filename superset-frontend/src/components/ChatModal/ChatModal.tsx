@@ -1,5 +1,6 @@
 import React, { useRef, useState } from 'react';
 import { io } from 'socket.io-client';
+import { useTheme } from '@superset-ui/core';
 import Modal from '../Modal';
 
 interface ChatModalProps {
@@ -14,6 +15,7 @@ interface Message {
 }
 
 function ChatModal({ show, onHide, title }: ChatModalProps) {
+  const theme = useTheme();
   const [message, setMessage] = useState('');
   const [messages, setMessages] = useState<Message[]>([]);
   const [replying, setReplying] = useState(false);
@@ -26,13 +28,13 @@ function ChatModal({ show, onHide, title }: ChatModalProps) {
   }, [onHide]);
 
   const socket = io('ws://localhost:8888');
-  socket.on('connect', socket => {
+  socket.on('connect', () => {
     console.log(`socket connected`, socket);
   });
   socket.on('disconnect', () => {
     console.log('socket disconnected');
   });
-  socket.on('connetct_error', err => {
+  socket.on('connetct_error', (err: Error) => {
     console.error('websocket', err);
   });
 
@@ -46,7 +48,7 @@ function ChatModal({ show, onHide, title }: ChatModalProps) {
         setReplying(true);
       }, 200);
 
-      socket.emit('chat', { content: message }, reply => {
+      socket.emit('chat', { content: message }, (reply: any) => {
         setMessages([...msgs, { reply: true, message: reply.content }]);
         setReplying(false);
       });
@@ -116,8 +118,8 @@ function ChatModal({ show, onHide, title }: ChatModalProps) {
               <div
                 style={{
                   justifyContent: 'end',
-                  backgroundColor: '#FEEEE8',
-                  color: '#1a1a1a',
+                  backgroundColor: theme.colors.primary.dark1,
+                  color: theme.colors.grayscale.dark1,
                   padding: '0.1rem 1rem',
                   borderRadius: '4px',
                   textAlign: 'left',
@@ -140,8 +142,8 @@ function ChatModal({ show, onHide, title }: ChatModalProps) {
               <div
                 style={{
                   justifyContent: 'end',
-                  backgroundColor: '#F2EFEC',
-                  color: '#1a1a1a',
+                  backgroundColor: theme.colors.primary.light1,
+                  color: theme.colors.grayscale.dark1,
                   padding: '0.1rem 1rem',
                   borderRadius: '4px',
                   textAlign: 'right',
@@ -165,8 +167,8 @@ function ChatModal({ show, onHide, title }: ChatModalProps) {
             <div
               style={{
                 justifyContent: 'end',
-                backgroundColor: '#FEEEE8',
-                color: '#1a1a1a',
+                backgroundColor: theme.colors.primary.dark1,
+                color: theme.colors.grayscale.dark1,
                 padding: '0.1rem 1rem',
                 borderRadius: '4px',
                 textAlign: 'left',
@@ -183,9 +185,8 @@ function ChatModal({ show, onHide, title }: ChatModalProps) {
         onKeyDown={handleKeyDown}
         onChange={handleChange}
         style={{
-          border: 1,
-          backgroundColor: '#f1f1f1',
-          border: '1px #1a1a1a solid',
+          backgroundColor: theme.colors.grayscale.dark1,
+          border: `1px ${theme.colors.grayscale.base} solid`,
           borderRadius: '4px',
           padding: '8px 8px',
           height: '3rem',
