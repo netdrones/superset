@@ -366,7 +366,12 @@ const RightMenu = ({
           <span css={tagStyles}>{environmentTag.text}</span>
         </Label>
       )}
-      <Label style={{ color: '#ffffff', backgroundColor: '#C2185B' }}>
+      <Label
+        style={{
+          color: theme.colors.grayscale.light5,
+          backgroundColor: theme.colors.primary.base,
+        }}
+      >
         <Tooltip
           placement="top"
           title="Ask AI to help you to create a dashboard"
