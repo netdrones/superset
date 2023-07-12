@@ -185,7 +185,7 @@ function ChatModal({ show, onHide, title }: ChatModalProps) {
         onKeyDown={handleKeyDown}
         onChange={handleChange}
         style={{
-          backgroundColor: theme.colors.grayscale.dark1,
+          backgroundColor: theme.colors.grayscale.light5,
           border: `1px ${theme.colors.grayscale.base} solid`,
           borderRadius: '4px',
           padding: '8px 8px',

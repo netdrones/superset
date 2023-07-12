@@ -369,7 +369,7 @@ const RightMenu = ({
       <Label
         style={{
           color: theme.colors.grayscale.light5,
-          backgroundColor: theme.colors.primary.base,
+          backgroundColor: theme.colors.error.base,
         }}
       >
         <Tooltip
