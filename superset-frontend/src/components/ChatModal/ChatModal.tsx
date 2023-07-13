@@ -14,6 +14,8 @@ interface Message {
   message: string;
 }
 
+const DEFAULT_SUPERSET_AGENT_URL = 'https://cloud.platform.nedra.app/ws';
+
 function ChatModal({ show, onHide, title }: ChatModalProps) {
   const theme = useTheme();
   const [message, setMessage] = useState('');
@@ -100,21 +102,20 @@ function ChatModal({ show, onHide, title }: ChatModalProps) {
       .then(resp => {
         setAccessToken(resp.access_token);
 
-        const uri = process.env.SUPERSET_LLM_AGENT_PROXY;
-        if (uri) {
-          const socket = io(uri, {
-            extraHeaders: {
-              Authorization: `Bearer ${resp.access_token}`,
-            },
-          });
-          socket.on('connect', () => {
-            console.log(`socket connected`, socket);
-          });
-          socket.on('disconnect', () => {
-            console.log('socket disconnected');
-          });
-          setSocket(socket);
-        }
+        const uri =
+          process.env.SUPERSET_LLM_AGENT_PROXY || DEFAULT_SUPERSET_AGENT_URL;
+        const socket = io(uri, {
+          extraHeaders: {
+            Authorization: `Bearer ${resp.access_token}`,
+          },
+        });
+        socket.on('connect', () => {
+          console.log(`socket connected`, socket);
+        });
+        socket.on('disconnect', () => {
+          console.log('socket disconnected');
+        });
+        setSocket(socket);
       })
       .catch(e => alert(`Login failed: ${e.message}`));
   };
