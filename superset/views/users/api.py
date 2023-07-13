@@ -15,7 +15,7 @@
 # specific language governing permissions and limitations
 # under the License.
 from flask import g, Response
-from flask_appbuilder.api import expose, safe
+from flask_appbuilder.api import expose, safe, protect
 from flask_jwt_extended.exceptions import NoAuthorizationError
 
 from superset.views.base_api import BaseSupersetApi

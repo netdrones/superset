@@ -366,29 +366,31 @@ const RightMenu = ({
           <span css={tagStyles}>{environmentTag.text}</span>
         </Label>
       )}
-      <Label
-        style={{
-          color: theme.colors.grayscale.light5,
-          backgroundColor: theme.colors.error.base,
-        }}
-      >
-        <Tooltip
-          placement="top"
-          title="Ask AI to help you to create a dashboard"
+      {!navbarRight.user_is_anonymous && (
+        <Label
+          style={{
+            color: theme.colors.grayscale.light5,
+            backgroundColor: theme.colors.error.base,
+          }}
         >
-          <button
-            type="button"
-            style={{
-              border: 0,
-              fontWeight: 'bold',
-              background: 'transparent',
-            }}
-            onClick={() => setShowChatModal(true)}
+          <Tooltip
+            placement="top"
+            title="Ask AI to help you to create a dashboard"
           >
-            Ask AI
-          </button>
-        </Tooltip>
-      </Label>
+            <button
+              type="button"
+              style={{
+                border: 0,
+                fontWeight: 'bold',
+                background: 'transparent',
+              }}
+              onClick={() => setShowChatModal(true)}
+            >
+              Ask AI
+            </button>
+          </Tooltip>
+        </Label>
+      )}
       <Menu
         selectable={false}
         mode="horizontal"
@@ -588,20 +590,7 @@ const RightMenu = ({
           {t('Login')}
         </StyledAnchor>
       )}
-      {showChatModal && (
-        <>
-          {/* <Helmet>
-            <meta
-              httpEquiv="Content-Security-Policy"
-              content="connect-src 'self'"
-            />
-          </Helmet> */}
-          <ChatModal
-            show={showChatModal}
-            onHide={() => setShowChatModal(false)}
-          />
-        </>
-      )}
+      <ChatModal show={showChatModal} onHide={() => setShowChatModal(false)} />
     </StyledDiv>
   );
 };
