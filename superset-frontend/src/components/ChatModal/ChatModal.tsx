@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { io } from 'socket.io-client';
+import { Socket, io } from 'socket.io-client';
 import { useTheme } from '@superset-ui/core';
 import Modal from '../Modal';
 
@@ -21,37 +21,33 @@ function ChatModal({ show, onHide, title }: ChatModalProps) {
   const [replying, setReplying] = useState(false);
   const messageListRef = useRef<HTMLDivElement>(null);
 
+  const [socket, setSocket] = useState<Socket>();
+  const [accessToken, setAccessToken] = useState<string>();
+  const usernameRef = useRef<HTMLInputElement>(null);
+  const passwordRef = useRef<HTMLInputElement>(null);
+
   const handleCloseDialog = React.useCallback(() => {
     if (onHide) {
       onHide();
     }
   }, [onHide]);
 
-  const socket = io('ws://localhost:8888');
-  socket.on('connect', () => {
-    console.log(`socket connected`, socket);
-  });
-  socket.on('disconnect', () => {
-    console.log('socket disconnected');
-  });
-  socket.on('connetct_error', (err: Error) => {
-    console.error('websocket', err);
-  });
-
   const sendMessage = React.useCallback(
     (message: string) => {
       setMessage('');
 
-      const msgs = [...messages, { reply: false, message }];
-      setMessages(msgs);
-      setTimeout(() => {
-        setReplying(true);
-      }, 200);
+      if (socket) {
+        const msgs = [...messages, { reply: false, message }];
+        setMessages(msgs);
+        setTimeout(() => {
+          setReplying(true);
+        }, 200);
 
-      socket.emit('chat', { content: message }, (reply: any) => {
-        setMessages([...msgs, { reply: true, message: reply.content }]);
-        setReplying(false);
-      });
+        socket.emit('chat', { content: message }, (reply: any) => {
+          setMessages([...msgs, { reply: true, message: reply.content }]);
+          setReplying(false);
+        });
+      }
     },
     [socket, messages],
   );
@@ -62,16 +58,18 @@ function ChatModal({ show, onHide, title }: ChatModalProps) {
       if (evt.shiftKey) {
         return true;
       }
-
       evt.preventDefault();
       evt.stopPropagation();
-      sendMessage(target.value);
-      setTimeout(() => {
-        const listElm = messageListRef.current;
-        if (listElm) {
-          listElm.scrollTop = listElm.scrollHeight;
-        }
-      }, 30);
+
+      if (target.value.length > 0) {
+        sendMessage(target.value);
+        setTimeout(() => {
+          const listElm = messageListRef.current;
+          if (listElm) {
+            listElm.scrollTop = listElm.scrollHeight;
+          }
+        }, 30);
+      }
 
       return false;
     }
@@ -84,13 +82,70 @@ function ChatModal({ show, onHide, title }: ChatModalProps) {
     return true;
   };
 
+  const handleLogin = () => {
+    fetch('/api/v1/security/login', {
+      method: 'post',
+      cache: 'no-cache',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        username: usernameRef.current?.value,
+        password: passwordRef.current?.value,
+        provider: 'db',
+        refresh: true,
+      }),
+    })
+      .then(it => it.json())
+      .then(resp => {
+        setAccessToken(resp.access_token);
+
+        const uri = process.env.SUPERSET_LLM_AGENT_PROXY;
+        if (uri) {
+          const socket = io(uri, {
+            extraHeaders: {
+              Authorization: `Bearer ${resp.access_token}`,
+            },
+          });
+          socket.on('connect', () => {
+            console.log(`socket connected`, socket);
+          });
+          socket.on('disconnect', () => {
+            console.log('socket disconnected');
+          });
+          setSocket(socket);
+        }
+      })
+      .catch(e => alert(`Login failed: ${e.message}`));
+  };
+
   return (
     <Modal
       show={show}
+      onHandledPrimaryAction={handleCloseDialog}
       onHide={handleCloseDialog}
-      title={title || 'Ask GPT to help'}
-      disablePrimaryButton
+      title={
+        title || (
+          <div style={{ display: 'flex', gap: '10px' }}>
+            <span>Ask GPT to help</span>
+            {!accessToken && (
+              <>
+                <input ref={usernameRef} type="text" placeholder="Username" />
+                <input
+                  ref={passwordRef}
+                  type="password"
+                  placeholder="Password"
+                />
+                <button type="button" onClick={handleLogin}>
+                  Login
+                </button>
+              </>
+            )}
+          </div>
+        )
+      }
       responsive
+      disablePrimaryButton
     >
       <div
         ref={messageListRef}
@@ -118,7 +173,7 @@ function ChatModal({ show, onHide, title }: ChatModalProps) {
               <div
                 style={{
                   justifyContent: 'end',
-                  backgroundColor: theme.colors.primary.dark1,
+                  backgroundColor: theme.colors.success.light1,
                   color: theme.colors.grayscale.dark1,
                   padding: '0.1rem 1rem',
                   borderRadius: '4px',
@@ -144,7 +199,7 @@ function ChatModal({ show, onHide, title }: ChatModalProps) {
                   justifyContent: 'end',
                   backgroundColor: theme.colors.primary.light1,
                   color: theme.colors.grayscale.dark1,
-                  padding: '0.1rem 1rem',
+                  padding: '0 1rem',
                   borderRadius: '4px',
                   textAlign: 'right',
                 }}
@@ -167,7 +222,7 @@ function ChatModal({ show, onHide, title }: ChatModalProps) {
             <div
               style={{
                 justifyContent: 'end',
-                backgroundColor: theme.colors.primary.dark1,
+                backgroundColor: theme.colors.success.light1,
                 color: theme.colors.grayscale.dark1,
                 padding: '0.1rem 1rem',
                 borderRadius: '4px',
@@ -187,7 +242,7 @@ function ChatModal({ show, onHide, title }: ChatModalProps) {
         style={{
           backgroundColor: theme.colors.grayscale.light5,
           border: `1px ${theme.colors.grayscale.base} solid`,
-          borderRadius: '4px',
+
           padding: '8px 8px',
           height: '3rem',
           width: '100%',

@@ -118,6 +118,9 @@ const plugins = [
     'process.env.WEBPACK_MODE': JSON.stringify(mode),
     'process.env.REDUX_DEFAULT_MIDDLEWARE':
       process.env.REDUX_DEFAULT_MIDDLEWARE,
+    'process.env.SUPERSET_LLM_AGENT_PROXY': JSON.stringify(
+      process.env.SUPERSET_LLM_AGENT_PROXY,
+    ),
   }),
 
   new CopyPlugin({
