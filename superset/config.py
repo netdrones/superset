@@ -1379,6 +1379,8 @@ TALISMAN_CONFIG = {
             "'self'",
             "https://api.mapbox.com",
             "https://events.mapbox.com",
+            "https://superset-agent.platform.nedra.app",
+            "ws://superset-agent.platform.nedra.app",
         ],
         "object-src": "'none'",
         "style-src": ["'self'", "'unsafe-inline'"],
