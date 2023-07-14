@@ -45,10 +45,7 @@ function ChatModal({ show, onHide, title }: ChatModalProps) {
           setReplying(true);
         }, 200);
 
-        socket.emit('chat', { content: message }, (reply: any) => {
-          setMessages([...msgs, { reply: true, message: reply.content }]);
-          setReplying(false);
-        });
+        socket.emit('chat', { content: message });
       }
     },
     [socket, messages],
@@ -114,6 +111,15 @@ function ChatModal({ show, onHide, title }: ChatModalProps) {
         });
         socket.on('disconnect', () => {
           console.log('socket disconnected');
+        });
+        socket.on('chat', (reply: any) => {
+          try {
+            setMessages([...msgs, { reply: true, message: reply.content }]);
+          } catch (e) {
+            console.error(e);
+          } finally {
+            setReplying(false);
+          }
         });
         setSocket(socket);
       })

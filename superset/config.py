@@ -1401,6 +1401,8 @@ TALISMAN_DEV_CONFIG = {
             "https://events.mapbox.com",
             "http://localhost:8888",
             "ws://localhost:8888",
+            "https://superset-agent.platform.nedra.app",
+            "ws://superset-agent.platform.nedra.app",
         ],
         "object-src": "'none'",
         "style-src": ["'self'", "'unsafe-inline'"],
