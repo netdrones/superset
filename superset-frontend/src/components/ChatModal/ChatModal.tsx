@@ -14,7 +14,7 @@ interface Message {
   message: string;
 }
 
-const DEFAULT_SUPERSET_AGENT_URL = 'https://cloud.platform.nedra.app/ws';
+const DEFAULT_SUPERSET_AGENT_URL = 'https://superset-agent.platform.nedra.app/';
 
 function ChatModal({ show, onHide, title }: ChatModalProps) {
   const theme = useTheme();
