@@ -14,7 +14,7 @@ interface Message {
   message: string;
 }
 
-const DEFAULT_SUPERSET_AGENT_URL = 'https://superset-agent.platform.nedra.app/';
+const DEFAULT_SUPERSET_AGENT_URL = 'https://superset-agent.platform.nedra.app';
 
 function ChatModal({ show, onHide, title }: ChatModalProps) {
   const theme = useTheme();
@@ -45,7 +45,18 @@ function ChatModal({ show, onHide, title }: ChatModalProps) {
           setReplying(true);
         }, 200);
 
-        socket.emit('chat', { content: message });
+        socket.emit('chat', { content: message }, (reply: any) => {
+          try {
+            console.log('reply', reply);
+            if (reply) {
+              setMessages([...msgs, { reply: true, message: reply.content }]);
+            }
+          } catch (e) {
+            console.error(e);
+          } finally {
+            setReplying(false);
+          }
+        });
       }
     },
     [socket, messages],
@@ -81,7 +92,10 @@ function ChatModal({ show, onHide, title }: ChatModalProps) {
     return true;
   };
 
-  const handleLogin = () => {
+  const handleLogin = (evt: React.FormEvent) => {
+    evt.preventDefault();
+    evt.stopPropagation();
+
     fetch('/api/v1/security/login', {
       method: 'post',
       cache: 'no-cache',
@@ -102,6 +116,7 @@ function ChatModal({ show, onHide, title }: ChatModalProps) {
         const uri =
           process.env.SUPERSET_LLM_AGENT_PROXY || DEFAULT_SUPERSET_AGENT_URL;
         const socket = io(uri, {
+          withCredentials: true,
           extraHeaders: {
             Authorization: `Bearer ${resp.access_token}`,
           },
@@ -111,15 +126,6 @@ function ChatModal({ show, onHide, title }: ChatModalProps) {
         });
         socket.on('disconnect', () => {
           console.log('socket disconnected');
-        });
-        socket.on('chat', (reply: any) => {
-          try {
-            setMessages([...msgs, { reply: true, message: reply.content }]);
-          } catch (e) {
-            console.error(e);
-          } finally {
-            setReplying(false);
-          }
         });
         setSocket(socket);
       })
@@ -133,20 +139,21 @@ function ChatModal({ show, onHide, title }: ChatModalProps) {
       onHide={handleCloseDialog}
       title={
         title || (
-          <div style={{ display: 'flex', gap: '10px' }}>
+          <div>
             <span>Ask GPT to help</span>
             {!accessToken && (
-              <>
+              <form
+                onSubmit={handleLogin}
+                style={{ display: 'flex', gap: '10px' }}
+              >
                 <input ref={usernameRef} type="text" placeholder="Username" />
                 <input
                   ref={passwordRef}
                   type="password"
                   placeholder="Password"
                 />
-                <button type="button" onClick={handleLogin}>
-                  Login
-                </button>
-              </>
+                <button type="submit">Login</button>
+              </form>
             )}
           </div>
         )
