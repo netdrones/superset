@@ -373,10 +373,7 @@ const RightMenu = ({
             backgroundColor: theme.colors.error.base,
           }}
         >
-          <Tooltip
-            placement="top"
-            title="Ask AI to help you to create a dashboard"
-          >
+          <Tooltip placement="top" title="Ask NetAsk to help">
             <button
               type="button"
               style={{
@@ -386,7 +383,7 @@ const RightMenu = ({
               }}
               onClick={() => setShowChatModal(true)}
             >
-              Ask AI
+              NetAsk
             </button>
           </Tooltip>
         </Label>
