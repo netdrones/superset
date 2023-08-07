@@ -141,7 +141,7 @@ function ChatModal({ show, onHide, title }: ChatModalProps) {
       title={
         title || (
           <div>
-            <span>Ask GPT to help</span>
+            <span>NetAsk Assistant</span>
             {!accessToken && (
               <form
                 onSubmit={handleLogin}
